@@ -23,6 +23,8 @@ NOTES = "notes.json"
 REVIEWS = "reviews.json"
 OUT = "site"
 BASE_URL = "https://ozsyu.github.io"   # 公開URL。独自ドメインにしたらここを直す
+# Googleサーチコンソールの所有権確認用。消すと未確認に戻るので残しておくこと
+GOOGLE_VERIFY = "Kb2NCJSVxiX0KRuGZumT1xqZFLP-Zv7CF6bCa7jksmE"
 
 SITE_NAME = "369"
 SITE_TAGLINE = "プロ目線で選ぶ、長く使えるアイテムを実際に使う道具を値段で並べて見比べてみる。"
@@ -596,6 +598,7 @@ def page(title, body, active, depth=0, extra_js=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(SITE_DESC)}">
+<meta name="google-site-verification" content="{GOOGLE_VERIFY}">
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(SITE_DESC)}">
 <meta property="og:type" content="website">
