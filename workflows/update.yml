@@ -1,0 +1,61 @@
+name: サイトを更新して公開
+
+"on":
+  schedule:
+    - cron: "0 21 * * 0"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 楽天から商品を集める
+        env:
+          RAKUTEN_APP_ID: ${{ secrets.RAKUTEN_APP_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
+          RAKUTEN_ORIGIN: ${{ secrets.RAKUTEN_ORIGIN }}
+        run: python rakuten_collect.py
+
+      - name: サイトを生成する
+        run: python build_site.py
+
+      - name: 集めたデータを保存する
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add products.json
+          git diff --staged --quiet || git commit -m "商品データを更新"
+          git push
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
